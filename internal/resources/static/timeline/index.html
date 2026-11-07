@@ -1,0 +1,236 @@
+<!DOCTYPE HTML>
+<html>
+
+  <head>
+    <meta charset="UTF-8">
+    <title>Timeline | Basic demo</title>
+
+    <style type="text/css">
+      body,
+      html {
+        font-family: sans-serif;
+      }
+
+      table {
+        white-space: nowrap;
+        border-collapse: collapse;
+        border: none;
+        width: 100px;
+      }
+
+      td {
+        border: solid #000 1px;
+        word-wrap: break-word;
+        word-break: break-all;
+        overflow: hidden;
+      }
+
+      /* 时间轴整体容器圆角 */
+      .vis-timeline {
+        border-radius: 12px !important;
+        overflow: hidden;
+      }
+
+      /* 每个时间项 item 圆角 */
+      .vis-item {
+        border-radius: 8px !important;
+        overflow: hidden !important;
+      }
+
+      /* subgroup 分组条 圆角 */
+      .vis-subgroup {
+        border-radius: 6px !important;
+      }
+
+      /* group 分组背景条 圆角 */
+      .vis-panel.vis-left .vis-group {
+        border-radius: 8px !important;
+      }
+
+      /* 时间轴顶部刻度面板 圆角 */
+      .vis-time-axis .vis-panel.vis-top {
+        border-radius: 12px 12px 0 0 !important;
+      }
+    </style>
+
+    <script src="dist/moment-with-locales.min.js"></script>
+    <script src="dist/vis-timeline-graph2d.min.js"></script>
+    <link href="dist/vis-timeline-graph2d.min.css" rel="stylesheet" type="text/css" />
+  </head>
+
+  <body>
+    <div id="visualization"></div>
+    <script type="text/javascript">
+      function fixBCEDate(dateStr) {
+        if (!dateStr) return dateStr;
+        return dateStr.replace(/^([+-]?)(\d{1,6})(-\d{2}-\d{2})/, (_, sign, year, rest) => {
+          const finalSign = sign || '+';
+          const sixDigitYear = year.padStart(6, '0');
+          return finalSign + sixDigitYear + rest;
+        });
+      }
+      async function init() {
+        var container = document.getElementById('visualization');
+        const [api_group, api_subgroup, api_item] = await Promise.all([
+          fetch("/api/timeline/group"),
+          fetch("/api/timeline/subgroup"),
+          fetch("/api/timeline/item?all=true")
+        ])
+
+        let map = new Map()
+        j = await api_group.json()
+        groups = j["data"]
+        for (let i = 0; i < groups.length; i++) {
+          let group = groups[i]
+          map.set(group.id, new Map())
+        }
+
+        j = await api_subgroup.json()
+        subgroups = j["data"]
+
+        for (let i = 0; i < subgroups.length; i++) {
+          let subgroup = subgroups[i]
+          map.get(subgroup.group_id).set(subgroup.id, subgroup.stack)
+        }
+
+        for (let i = 0; i < groups.length; i++) {
+          let group = groups[i]
+          group.subgroupOrder = function (a, b) {
+            return a.subgroup > (b.subgroup)
+          }
+
+          let m = Object.fromEntries(
+            [...map.get(group.id)].map(([k, v]) => [String(k), v])
+          )
+          m["-"] = true
+          group.subgroupStack = m
+        }
+
+        j = await api_item.json()
+        items = j["data"]
+        for (let i = 0; i < items.length; i++) {
+          let item = items[i]
+          //id, content 不变
+
+          //开始、结束日
+          item.start = fixBCEDate(item.start_str)
+          if ("end_str" in item && item.end_str != "") {
+            item.end = fixBCEDate(item.end_str)
+          } else {
+            item.end_str = '？'
+            if (item.type == "range" || item.type == "background" || item.type == "" || !("type" in item)) {
+              item.end = new Date().toISOString().split('T')[0]
+            } else {
+              delete item.end
+            }
+          }
+
+          //删除空字段
+          if (item.type == "") { delete item.type }
+
+          //覆盖分组字段
+          if (item.group_id == 0) {
+            delete item.group_id
+            item.group = '-'
+          } else {
+            item.group = item.group_id
+          }
+          if (item.subgroup_id == 0) {
+            delete item.subgroup_id
+            item.subgroup = '-'
+          } else {
+            item.subgroup = item.subgroup_id.toString()
+          }
+
+          //处理拼接字段
+          if ("color1" in item && "color2" in item && item.color1 != "" && item.color2 != "") {
+            item.style = 'color: ' + item.color2 + '; background-color: ' + item.color1 + ';'
+          }
+          if (!("title" in item) || item.title == "") {
+            item.title = item.content
+          }
+          let dt = "" //持续时间，单位天
+          if (item.type == "range" || item.type == "background" || item.type == "" || !("type" in item)) {
+            let t1 = new Date(item.start);
+            let t2 = new Date(item.end);
+            let years = t2.getFullYear() - t1.getFullYear();
+            let months = t2.getMonth() - t1.getMonth();
+            let days = t2.getDate() - t1.getDate();
+
+            // 天数为负，借一个月
+            if (days < 0) {
+              months--;
+              const lastMonth = new Date(t2.getFullYear(), t2.getMonth(), 0);
+              days += lastMonth.getDate();
+            }
+
+            // 月数为负，借一年
+            if (months < 0) {
+              years--;
+              months += 12;
+            }
+            dt = `${years}年${months}月${days}日`
+
+          }
+          ret = '<table>'
+          ret += '<tr><td>' + item.content + '</td></tr>'
+          ret += '<tr><td>' + item.start_str + " ~ " + item.end_str + (dt == '' ? '' : '(' + dt + ')') + '</td></tr>'
+          ret += '<tr><td>' + item.title + '</td></tr>'
+          ret += '</table > '
+          item.title = ret
+
+
+          //删除不需要的字段
+          delete item.group_id
+          delete item.subgroup_id
+          delete item.start_str
+          delete item.end_str
+          delete item.color1
+          delete item.color2
+          delete item.precision_start
+          delete item.precision_end
+        }
+
+        var dataset = new vis.DataSet(items)
+
+        var options = {
+          stack: true,
+          stackSubgroups: true,
+
+          format: {
+            minorLabels: {
+              millisecond: 'SSS',
+              second: 's',
+              minute: 'HH:mm',
+              hour: 'HH:mm',
+              weekday: 'D（ddd）',
+              day: 'D',
+              week: 'w',
+              month: 'MMM',
+              year: 'YYYY'
+            },
+            majorLabels: {
+              millisecond: 'YYYY-MM-DD（ddd）HH:mm:ss',
+              second: 'YYYY-MM-DD（ddd） HH:mm',
+              minute: 'YYYY-MM-DD（ddd）',
+              hour: 'YYYY-MM-DD（ddd）',
+              weekday: 'YYYY-MM',
+              day: 'YYYY-MM',
+              week: 'YYYY-MM',
+              month: 'YYYY',
+              year: ''
+            }
+          }
+        }
+
+        console.log(items)
+        console.log(groups)
+        var timeline = new vis.Timeline(container, dataset, groups, options);
+      }
+      init()
+    </script>
+    <p><a href="/web/timeline/admin">Admin</a></p>
+
+  </body>
+
+</html>

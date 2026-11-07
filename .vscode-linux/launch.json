@@ -1,0 +1,25 @@
+{
+  // 使用 IntelliSense 了解相关属性。
+  // 悬停以查看现有属性的描述。
+  // 欲了解更多信息，请访问: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Attach To Air Process",
+      "type": "go",
+      "request": "attach",
+      "mode": "remote",
+      "port": 2345,
+      "host": "10.0.0.3",
+      "processId": 0,
+      "showLog": true,
+      "apiVersion": 2,
+      "substitutePath": [
+        {
+          "from": "Y:\\dev\\aio",
+          "to": "/data/dev/aio"
+        }
+      ]
+    }
+  ]
+}

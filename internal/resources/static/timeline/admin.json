@@ -1,0 +1,780 @@
+{
+    "type": "page",
+    "title": "时间轴",
+    "body": [
+        {
+            "type": "tabs",
+            "tabs": [
+                {
+                    "title": "元素",
+                    "body": [
+                        {
+                            "type": "crud",
+                            "syncLocation": false,
+                            "api": "get:/api/timeline/item",
+                            "perPageAvailable": [
+                                5,
+                                10,
+                                20,
+                                50,
+                                100
+                            ],
+                            "filter": {
+                                "title": "条件搜索",
+                                "defaultValue": {
+                                    "order": "start",
+                                    "asc": "ASC"
+                                },
+                                "body": [
+                                    {
+                                        "type": "select",
+                                        "name": "group_id",
+                                        "label": "分组",
+                                        "source": "get:/api/timeline/group",
+                                        "valueField": "id",
+                                        "labelField": "content",
+                                        "clearable": true
+                                    },
+                                    {
+                                        "type": "select",
+                                        "name": "subgroup_id",
+                                        "label": "子分组",
+                                        "source": "get:/api/timeline/subgroup?group_id=$group",
+                                        "valueField": "id",
+                                        "labelField": "content",
+                                        "clearable": true,
+                                        "initFetch": false
+                                    },
+                                    {
+                                        "type": "input-text",
+                                        "name": "start_str",
+                                        "label": "开始时间(在此之后)",
+                                        "clearable": true
+                                    },
+                                    {
+                                        "type": "input-text",
+                                        "name": "end_str",
+                                        "label": "结束时间(在此之前)",
+                                        "clearable": true
+                                    },
+                                    {
+                                        "type": "input-text",
+                                        "name": "key",
+                                        "label": "关键字",
+                                        "clearable": true,
+                                        "placeholder": "通过关键字搜索"
+                                    },
+                                    {
+                                        "type": "select",
+                                        "name": "order",
+                                        "label": "排序",
+                                        "options": [
+                                            {
+                                                "label": "ID",
+                                                "value": "id"
+                                            },
+                                            {
+                                                "label": "分组",
+                                                "value": "group_id"
+                                            },
+                                            {
+                                                "label": "子分组",
+                                                "value": "subgroup_id"
+                                            },
+                                            {
+                                                "label": "开始时间",
+                                                "value": "start"
+                                            },
+                                            {
+                                                "label": "结束时间",
+                                                "value": "end"
+                                            }
+                                        ],
+                                        "value": "start",
+                                        "clearable": true
+                                    },
+                                    {
+                                        "type": "select",
+                                        "name": "asc",
+                                        "options": [
+                                            {
+                                                "label": "升序",
+                                                "value": "ASC"
+                                            },
+                                            {
+                                                "label": "降序",
+                                                "value": "DESC"
+                                            }
+                                        ],
+                                        "value": "ASC",
+                                        "clearable": true
+                                    },
+                                    {
+                                        "type": "submit",
+                                        "level": "primary",
+                                        "label": "查询"
+                                    }
+                                ]
+                            },
+                            "headerToolbar": [
+                                {
+                                    "label": "新增",
+                                    "type": "button",
+                                    "actionType": "dialog",
+                                    "level": "primary",
+                                    "dialog": {
+                                        "title": "新增",
+                                        "size": "lg",
+                                        "body": {
+                                            "type": "form",
+                                            "api": "post:/api/timeline/item",
+                                            "body": [
+                                                {
+                                                    "type": "select",
+                                                    "name": "group_id",
+                                                    "label": "分组",
+                                                    "source": "get:/api/timeline/group",
+                                                    "valueField": "id",
+                                                    "labelField": "content",
+                                                    "clearable": true
+                                                },
+                                                {
+                                                    "type": "select",
+                                                    "name": "subgroup",
+                                                    "label": "子分组",
+                                                    "source": "get:/api/timeline/subgroup?group_id=$group",
+                                                    "valueField": "id",
+                                                    "labelField": "content",
+                                                    "clearable": true
+                                                },
+                                                {
+                                                    "type": "input-text",
+                                                    "name": "start_str",
+                                                    "label": "开始时间",
+                                                    "clearable": true,
+                                                    "required": true
+                                                },
+                                                {
+                                                    "type": "button-group-select",
+                                                    "label": "精度",
+                                                    "name": "precision_start",
+                                                    "clearable": true,
+                                                    "value": {
+                                                        "label": "日",
+                                                        "value": "d"
+                                                    },
+                                                    "options": [
+                                                        {
+                                                            "label": "年",
+                                                            "value": "y"
+                                                        },
+                                                        {
+                                                            "label": "月",
+                                                            "value": "M"
+                                                        },
+                                                        {
+                                                            "label": "日",
+                                                            "value": "d"
+                                                        },
+                                                        {
+                                                            "label": "时",
+                                                            "value": "h"
+                                                        },
+                                                        {
+                                                            "label": "分",
+                                                            "value": "m"
+                                                        },
+                                                        {
+                                                            "label": "秒",
+                                                            "value": "s"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "input-text",
+                                                    "name": "end_str",
+                                                    "label": "结束时间",
+                                                    "clearable": true
+                                                },
+                                                {
+                                                    "type": "button-group-select",
+                                                    "label": "精度",
+                                                    "name": "precision_end",
+                                                    "clearable": true,
+                                                    "value": {
+                                                        "label": "日",
+                                                        "value": "d"
+                                                    },
+                                                    "options": [
+                                                        {
+                                                            "label": "年",
+                                                            "value": "y"
+                                                        },
+                                                        {
+                                                            "label": "月",
+                                                            "value": "M"
+                                                        },
+                                                        {
+                                                            "label": "日",
+                                                            "value": "d"
+                                                        },
+                                                        {
+                                                            "label": "时",
+                                                            "value": "h"
+                                                        },
+                                                        {
+                                                            "label": "分",
+                                                            "value": "m"
+                                                        },
+                                                        {
+                                                            "label": "秒",
+                                                            "value": "s"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "button-group-select",
+                                                    "label": "类型",
+                                                    "name": "type",
+                                                    "clearable": true,
+                                                    "value": {
+                                                        "label": "盒子",
+                                                        "value": "box"
+                                                    },
+                                                    "options": [
+                                                        {
+                                                            "label": "盒子",
+                                                            "value": "box"
+                                                        },
+                                                        {
+                                                            "label": "点",
+                                                            "value": "point"
+                                                        },
+                                                        {
+                                                            "label": "范围",
+                                                            "value": "range"
+                                                        },
+                                                        {
+                                                            "label": "背景",
+                                                            "value": "background"
+                                                        }
+                                                    ]
+                                                },
+                                                {
+                                                    "type": "input-color",
+                                                    "name": "color1",
+                                                    "label": "背景色"
+                                                },
+                                                {
+                                                    "type": "input-color",
+                                                    "name": "color2",
+                                                    "label": "字体色"
+                                                },
+                                                {
+                                                    "type": "input-text",
+                                                    "name": "content",
+                                                    "label": "标题",
+                                                    "clearable": true,
+                                                    "required": true
+                                                },
+                                                {
+                                                    "type": "textarea",
+                                                    "name": "title",
+                                                    "label": "详情",
+                                                    "showCounter": true,
+                                                    "placeholder": "请输入",
+                                                    "clearable": true
+                                                }
+                                            ]
+                                        }
+                                    }
+                                },
+                                {
+                                    "type": "pagination",
+                                    "align": "right"
+                                },
+                                {
+                                    "type": "switch-per-page",
+                                    "align": "right"
+                                },
+                                {
+                                    "type": "statistics",
+                                    "align": "right"
+                                }
+                            ],
+                            "columns": [
+                                {
+                                    "name": "id",
+                                    "label": "ID",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "group.content",
+                                    "label": "分组",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "subgroup.content",
+                                    "label": "子分组",
+                                    "type": "text"
+                                },
+                                {
+                                    "type": "text",
+                                    "label": "开始时间",
+                                    "name": "start_str"
+                                },
+                                {
+                                    "type": "text",
+                                    "label": "结束时间",
+                                    "name": "end_str"
+                                },
+                                {
+                                    "type": "text",
+                                    "label": "类型",
+                                    "name": "type"
+                                },
+                                {
+                                    "type": "color",
+                                    "label": "背景色",
+                                    "name": "color1",
+                                    "defaultColor": "-"
+                                },
+                                {
+                                    "type": "color",
+                                    "label": "字体色",
+                                    "name": "color2",
+                                    "defaultColor": "-"
+                                },
+                                {
+                                    "type": "text",
+                                    "label": "标题",
+                                    "name": "content"
+                                },
+                                {
+                                    "type": "tpl",
+                                    "label": "详情",
+                                    "name": "title",
+                                    "tpl": "${title|truncate:20}"
+                                },
+                                {
+                                    "type": "operation",
+                                    "label": "操作栏",
+                                    "buttons": [
+                                        {
+                                            "label": "编辑",
+                                            "type": "button",
+                                            "actionType": "dialog",
+                                            "level": "link",
+                                            "dialog": {
+                                                "title": "编辑",
+                                                "size": "lg",
+                                                "body": {
+                                                    "type": "form",
+                                                    "api": "put:/api/timeline/item",
+                                                    "body": [
+                                                        {
+                                                            "type": "hidden",
+                                                            "name": "id",
+                                                            "label": "ID"
+                                                        },
+                                                        {
+                                                            "type": "select",
+                                                            "name": "group_id",
+                                                            "label": "分组",
+                                                            "source": "get:/api/timeline/group",
+                                                            "valueField": "id",
+                                                            "labelField": "content",
+                                                            "clearable": true
+                                                        },
+                                                        {
+                                                            "type": "select",
+                                                            "name": "subgroup_id",
+                                                            "label": "子分组",
+                                                            "source": "get:/api/timeline/subgroup?group_id=$group",
+                                                            "valueField": "id",
+                                                            "labelField": "content",
+                                                            "clearable": true
+                                                        },
+                                                        {
+                                                            "type": "input-text",
+                                                            "name": "start_str",
+                                                            "label": "开始时间",
+                                                            "clearable": true,
+                                                            "required": true
+                                                        },
+                                                        {
+                                                            "type": "button-group-select",
+                                                            "label": "精度",
+                                                            "name": "precision_start",
+                                                            "clearable": true,
+                                                            "options": [
+                                                                {
+                                                                    "label": "年",
+                                                                    "value": "y"
+                                                                },
+                                                                {
+                                                                    "label": "月",
+                                                                    "value": "M"
+                                                                },
+                                                                {
+                                                                    "label": "日",
+                                                                    "value": "d"
+                                                                },
+                                                                {
+                                                                    "label": "时",
+                                                                    "value": "h"
+                                                                },
+                                                                {
+                                                                    "label": "分",
+                                                                    "value": "m"
+                                                                },
+                                                                {
+                                                                    "label": "秒",
+                                                                    "value": "s"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "input-text",
+                                                            "name": "end_str",
+                                                            "label": "结束时间",
+                                                            "clearable": true
+                                                        },
+                                                        {
+                                                            "type": "button-group-select",
+                                                            "label": "精度",
+                                                            "name": "precision_end",
+                                                            "clearable": true,
+                                                            "options": [
+                                                                {
+                                                                    "label": "年",
+                                                                    "value": "y"
+                                                                },
+                                                                {
+                                                                    "label": "月",
+                                                                    "value": "M"
+                                                                },
+                                                                {
+                                                                    "label": "日",
+                                                                    "value": "d"
+                                                                },
+                                                                {
+                                                                    "label": "时",
+                                                                    "value": "h"
+                                                                },
+                                                                {
+                                                                    "label": "分",
+                                                                    "value": "m"
+                                                                },
+                                                                {
+                                                                    "label": "秒",
+                                                                    "value": "s"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "button-group-select",
+                                                            "label": "类型",
+                                                            "name": "type",
+                                                            "clearable": true,
+                                                            "options": [
+                                                                {
+                                                                    "label": "盒子",
+                                                                    "value": "box",
+                                                                    "selected": true
+                                                                },
+                                                                {
+                                                                    "label": "点",
+                                                                    "value": "point"
+                                                                },
+                                                                {
+                                                                    "label": "范围",
+                                                                    "value": "range"
+                                                                },
+                                                                {
+                                                                    "label": "背景",
+                                                                    "value": "background"
+                                                                }
+                                                            ]
+                                                        },
+                                                        {
+                                                            "type": "input-color",
+                                                            "name": "color1",
+                                                            "label": "背景色"
+                                                        },
+                                                        {
+                                                            "type": "input-color",
+                                                            "name": "color2",
+                                                            "label": "字体色"
+                                                        },
+                                                        {
+                                                            "type": "input-text",
+                                                            "name": "content",
+                                                            "label": "标题",
+                                                            "clearable": true,
+                                                            "required": true
+                                                        },
+                                                        {
+                                                            "type": "textarea",
+                                                            "name": "title",
+                                                            "label": "详情",
+                                                            "showCounter": true,
+                                                            "placeholder": "请输入",
+                                                            "clearable": true
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "button",
+                                            "label": "删除",
+                                            "actionType": "ajax",
+                                            "level": "link",
+                                            "className": "text-danger",
+                                            "confirmText": "确定要删除？",
+                                            "api": "delete:/api/timeline/item?id=$id"
+                                        }
+                                    ]
+                                }
+                            ],
+                            "footerToolbar": [
+                                {
+                                    "type": "pagination",
+                                    "align": "right"
+                                },
+                                {
+                                    "type": "switch-per-page",
+                                    "align": "right"
+                                },
+                                {
+                                    "type": "statistics",
+                                    "align": "right"
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "子分组",
+                    "body": [
+                        {
+                            "type": "crud",
+                            "syncLocation": false,
+                            "api": "get:/api/timeline/subgroup",
+                            "bulkActions": [
+                                {
+                                    "type": "button",
+                                    "level": "danger",
+                                    "label": "批量删除",
+                                    "actionType": "ajax",
+                                    "confirmText": "确定要删除？",
+                                    "api": ""
+                                }
+                            ],
+                            "headerToolbar": [
+                                {
+                                    "label": "新增",
+                                    "type": "button",
+                                    "actionType": "dialog",
+                                    "level": "primary",
+                                    "dialog": {
+                                        "title": "新增子分组",
+                                        "body": {
+                                            "type": "form",
+                                            "api": "post:/api/timeline/subgroup",
+                                            "body": [
+                                                {
+                                                    "name": "group_id",
+                                                    "label": "分组",
+                                                    "type": "select",
+                                                    "source": "get:/api/timeline/group",
+                                                    "valueField": "id",
+                                                    "labelField": "content",
+                                                    "clearable": true
+                                                },
+                                                {
+                                                    "type": "input-text",
+                                                    "name": "content",
+                                                    "label": "子分组"
+                                                },
+                                                {
+                                                    "type": "switch",
+                                                    "name": "stack",
+                                                    "label": "堆叠"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ],
+                            "columns": [
+                                {
+                                    "name": "content",
+                                    "label": "子分组",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "group.content",
+                                    "label": "分组",
+                                    "type": "text"
+                                },
+                                {
+                                    "type": "switch",
+                                    "name": "stack",
+                                    "label": "堆叠"
+                                },
+                                {
+                                    "type": "operation",
+                                    "label": "操作",
+                                    "buttons": [
+                                        {
+                                            "label": "编辑",
+                                            "type": "button",
+                                            "actionType": "dialog",
+                                            "level": "link",
+                                            "dialog": {
+                                                "title": "编辑",
+                                                "body": {
+                                                    "type": "form",
+                                                    "api": "put:/api/timeline/subgroup",
+                                                    "body": [
+                                                        {
+                                                            "name": "id",
+                                                            "type": "hidden"
+                                                        },
+                                                        {
+                                                            "name": "group_id",
+                                                            "label": "分组",
+                                                            "type": "select",
+                                                            "source": "get:/api/timeline/group",
+                                                            "valueField": "id",
+                                                            "labelField": "content",
+                                                            "clearable": true
+                                                        },
+                                                        {
+                                                            "name": "content",
+                                                            "label": "子分组",
+                                                            "type": "input-text"
+                                                        },
+                                                        {
+                                                            "type": "switch",
+                                                            "name": "stack",
+                                                            "label": "堆叠"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "button",
+                                            "label": "删除",
+                                            "actionType": "ajax",
+                                            "level": "link",
+                                            "className": "text-danger",
+                                            "confirmText": "确定要删除？",
+                                            "api": "delete:/api/timeline/subgroup?subgroup_id=$id"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                },
+                {
+                    "title": "分组",
+                    "body": [
+                        {
+                            "type": "crud",
+                            "syncLocation": false,
+                            "api": "get:/api/timeline/group",
+                            "bulkActions": [
+                                {
+                                    "type": "button",
+                                    "level": "danger",
+                                    "label": "批量删除",
+                                    "actionType": "ajax",
+                                    "confirmText": "确定要删除？",
+                                    "api": ""
+                                }
+                            ],
+                            "headerToolbar": [
+                                {
+                                    "label": "新增",
+                                    "type": "button",
+                                    "actionType": "dialog",
+                                    "level": "primary",
+                                    "dialog": {
+                                        "title": "新增分组",
+                                        "body": {
+                                            "type": "form",
+                                            "api": "post:/api/timeline/group",
+                                            "body": [
+                                                {
+                                                    "type": "input-text",
+                                                    "name": "content",
+                                                    "label": "标题"
+                                                }
+                                            ]
+                                        }
+                                    }
+                                }
+                            ],
+                            "columns": [
+                                {
+                                    "name": "id",
+                                    "label": "ID",
+                                    "type": "text"
+                                },
+                                {
+                                    "name": "content",
+                                    "label": "标题",
+                                    "type": "text"
+                                },
+                                {
+                                    "type": "operation",
+                                    "label": "操作",
+                                    "buttons": [
+                                        {
+                                            "label": "编辑",
+                                            "type": "button",
+                                            "actionType": "dialog",
+                                            "level": "link",
+                                            "dialog": {
+                                                "title": "编辑",
+                                                "body": {
+                                                    "type": "form",
+                                                    "api": "put:/api/timeline/group",
+                                                    "body": [
+                                                        {
+                                                            "name": "id",
+                                                            "type": "hidden"
+                                                        },
+                                                        {
+                                                            "name": "content",
+                                                            "label": "标题",
+                                                            "type": "input-text"
+                                                        }
+                                                    ]
+                                                }
+                                            }
+                                        },
+                                        {
+                                            "type": "button",
+                                            "label": "删除",
+                                            "actionType": "ajax",
+                                            "level": "link",
+                                            "className": "text-danger",
+                                            "confirmText": "确定要删除？",
+                                            "api": "delete:/api/timeline/group?id=$id"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    ]
+                }
+            ]
+        }
+    ]
+}
